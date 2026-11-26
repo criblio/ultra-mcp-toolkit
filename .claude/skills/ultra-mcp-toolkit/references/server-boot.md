@@ -1,15 +1,16 @@
 # Server boot — wiring it all up
 
-Every consumer server (jira-mcp, confluence-mcp, bitbucket-mcp) follows the same shape: build a `Client`, build a `sandbox`, build a `trimRegistry`, then boot in one of two modes.
+Every consumer server (jira-mcp, confluence-mcp, bitbucket-mcp) follows the same shape: build a `Client`, build a `sandbox`, build a `trimRegistry`, then boot in one of three modes.
 
-## The two modes
+## The three modes
 
 | Mode | What runs | When to use |
 |---|---|---|
 | **Classic stdio** | N consolidated MCP tools (`jira_issue`, `jira_project`, …) over stdio | Default. Best when the tool list fits comfortably. |
 | **Code-api** | Single MCP tool (`<server>_code_api`) that dispatches to a bundled CLI over a Unix-socket bridge | Use when the consolidated tool list is still too noisy for the host. ~76× tool-list reduction. |
+| **Shared HTTP** | The classic tools over streamable HTTP; one process serves many clients | Use when many clients on one machine should share one server process instead of one each. |
 
-The same manifest, trims, and operations power both. Only the *surface* differs.
+The same manifest, trims, and operations power all three. Only the *surface* and *transport* differ.
 
 ## Building the `Client`
 
@@ -81,6 +82,52 @@ await startStdioServer({
 ```
 
 `startStdioServer` handles the two footguns: don't exit after `connect`, install SIGINT/SIGTERM.
+
+## Shared HTTP mode
+
+Stdio gives every MCP client its own server process. When many clients
+(for example many agent sessions on one machine) should share one
+process, boot over streamable HTTP instead. An SDK `Server` connects to a
+single transport, so the helper asks a factory for a new `Server` per
+session:
+
+```ts
+import { HttpSessionRejected, startHttpServer } from "ultra-mcp-toolkit/http";
+
+await startHttpServer({
+  host: "127.0.0.1",
+  port: 18001,
+  // Called on each session's initialize request.
+  createServer: ({ headers }) => {
+    const token = headers["my-server-token"];
+    if (typeof token !== "string") throw new HttpSessionRejected("my-server-token header required");
+    return buildServer(createHttpClient({ baseUrl, auth: { type: "bearer", token } }));
+  },
+  // Every later request in the session must repeat these headers.
+  bindHeaders: ["my-server-token"],
+  banner: "my-server-mcp ready",
+});
+```
+
+- Credentials come per session from request headers, so the shared
+  process holds none of its own.
+- Throw `HttpSessionRejected` from the factory to answer 401.
+- The Host header must match `allowedHosts` (default: loopback names at
+  the bound port) and any Origin header must be in `allowedOrigins`
+  (default: none). Both stop DNS-rebinding requests from web pages.
+- Sessions are kept until the client deletes them or `idleTimeoutMs`
+  passes (default 0: never). A session whose client never sends
+  `notifications/initialized` is closed after `initTimeoutMs` (default
+  30 s).
+- Every POST body is capped at `maxBodyBytes` (default 4 MiB).
+- Responses are SSE. The SDK's JSON response mode is not used: in SDK
+  1.29.0 it keeps one internal entry per request for the life of the
+  session.
+- Inside a container, listen on `0.0.0.0` and publish the port on the
+  host's loopback only (`-p 127.0.0.1:18001:18001`). Use the same port
+  on both sides so the default Host allowlist matches.
+- Code-api mode is per process (one bridge socket), so it does not fit a
+  shared server; use the classic tool surface.
 
 ## Code-api mode
 

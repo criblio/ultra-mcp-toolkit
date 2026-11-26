@@ -24,7 +24,7 @@ Load a topic reference (below) before writing code in that area — each one has
 | Declaring operations, `pathTemplate`, `ParamSpec`, `ExecuteFn`, multi-API routing | [references/manifest.md](references/manifest.md) |
 | Writing trim projections, registering them, sandbox+ref envelope, list summarizers | [references/trim.md](references/trim.md) |
 | Building a consolidated MCP tool with `action`-discriminated input, Zod schemas, `full: true` escape hatch, `DispatchError`/`ToolError` | [references/dispatcher.md](references/dispatcher.md) |
-| Wiring server startup — `Client` impl, `createSandbox`, `startStdioServer`, `bootCodeApi`, `createCli`, install-skill subcommand | [references/server-boot.md](references/server-boot.md) |
+| Wiring server startup — `Client` impl, `createSandbox`, `startStdioServer`, `startHttpServer`, `bootCodeApi`, `createCli`, install-skill subcommand | [references/server-boot.md](references/server-boot.md) |
 
 ## Common starter tasks
 
@@ -52,6 +52,7 @@ ultra-mcp-toolkit/sandbox    — createSandbox (content-addressed)
 ultra-mcp-toolkit/page-cache — versioned-id disk cache
 ultra-mcp-toolkit/tool       — dispatch, buildInputSchema, DispatchError
 ultra-mcp-toolkit/stdio      — startStdioServer
+ultra-mcp-toolkit/http       — startHttpServer (one process, many clients)
 ultra-mcp-toolkit/code-api   — bootCodeApi, createCodeApiTool
 ultra-mcp-toolkit/bridge     — startBridge, callBridge
 ultra-mcp-toolkit/cli        — createCli (CLI scaffolding)
