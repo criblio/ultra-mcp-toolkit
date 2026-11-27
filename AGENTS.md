@@ -14,7 +14,7 @@ Two distinct concerns when working here:
 
 ```
 src/
-  boot/        startStdioServer — MCP stdio boot helper
+  boot/        startStdioServer / startHttpServer — MCP stdio and streamable-HTTP boot helpers
   bridge/      IPC socket bridge (code-api mode)
   cli/         createCli — CLI scaffolding for bundled <server>-cli binaries
   client/      Client interface + bundled HTTP client + transport

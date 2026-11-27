@@ -138,6 +138,7 @@ Import what you need; prefer subpaths over the umbrella `ultra-mcp-toolkit` impo
 | `ultra-mcp-toolkit/config`         | `parseToolFilterEnv` (`enabled_categories` + `disabled_actions` from env), `parseToolMode`. Server-specific env var names stay in the server.                                                          |
 | `ultra-mcp-toolkit/mutation-ack`   | `createMutationAck` — minimal mutation acknowledgement envelope (`{ ok, kind, id, url }`).                                                                                                             |
 | `ultra-mcp-toolkit/stdio`          | `startStdioServer` — MCP stdio boot helper. Hides the "don't `process.exit` after connect" + SIGINT/SIGTERM footguns.                                                                                  |
+| `ultra-mcp-toolkit/http`           | `startHttpServer` — streamable-HTTP boot helper so one process serves many clients. One `Server` per session from a factory that sees the initialize headers; Host/Origin allowlists; `bindHeaders`. |
 | `ultra-mcp-toolkit/schemas`        | Shared Zod schemas (`positiveInt`, etc.).                                                                                                                                                              |
 | `ultra-mcp-toolkit/agent-safety`   | Defense-in-depth validators for autonomous-agent harnesses: `resolveSafePath`, `verifyResolvedRealpath`, `isProtectedPath`, `SafetyChecker`. Caller-extensible denylist + harmful/secret/shell scans.   |
 | `ultra-mcp-toolkit/agent-tools`    | Pre-built Vercel-AI `tool({...})` factories wired through `agent-safety`: `createFileTools`, `createGitTools`, `createGitHubTools`, `createTestTools`. Optional peers: `ai`, `@octokit/rest`, `zod`.    |
@@ -230,6 +231,8 @@ await dispatch(
 </details>
 
 ## Status
+
+`v0.7` — Adds `http` (`startHttpServer`): a streamable-HTTP boot helper so one server process can serve many MCP clients, each session with its own `Server` and its own credentials. Pure addition: no existing API changes.
 
 `v0.5` — Bundles the toolkit's own Claude Code skill (`.claude/skills/ultra-mcp-toolkit/`) plus a `npm run install-skill` script. Pure addition: skill is opt-in, no API changes.
 

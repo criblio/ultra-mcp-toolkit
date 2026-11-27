@@ -16,6 +16,7 @@
 //   import { createHttpClient } from "ultra-mcp-toolkit/http-client";
 //   import { createMutationAck } from "ultra-mcp-toolkit/mutation-ack";
 //   import { startStdioServer } from "ultra-mcp-toolkit/stdio";
+//   import { startHttpServer } from "ultra-mcp-toolkit/http";
 //   import { SafetyChecker, resolveSafePath } from "ultra-mcp-toolkit/agent-safety";
 //   import { createFileTools, createGitTools } from "ultra-mcp-toolkit/agent-tools";
 //
@@ -42,5 +43,6 @@ export * from "./tool/dispatcher.js";
 export * from "./schemas/index.js";
 export * from "./trim/mutation-ack.js";
 export * from "./boot/stdio.js";
+export * from "./boot/http.js";
 export * from "./agent-safety/index.js";
 export type * from "./types/refs.js";
